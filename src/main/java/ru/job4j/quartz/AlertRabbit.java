@@ -16,14 +16,24 @@ public class AlertRabbit {
         try {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
-            JobDetail job = newJob(Rabbit.class).build();
+
+            JobDataMap data = new JobDataMap();
+            data.put("param1", "Hello, Rabbit!");
+            data.put("param2", 42);
+
+            JobDetail job = newJob(Rabbit.class)
+                    .setJobData(data)
+                    .build();
+
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(Integer.parseInt(getConfig().getProperty("rabbit.interval")))
                     .repeatForever();
+
             Trigger trigger = newTrigger()
                     .startNow()
                     .withSchedule(times)
                     .build();
+
             scheduler.scheduleJob(job, trigger);
         } catch (SchedulerException se) {
             se.printStackTrace();
@@ -33,7 +43,9 @@ public class AlertRabbit {
     public static class Rabbit implements Job {
         @Override
         public void execute(JobExecutionContext context) {
-            System.out.println("Rabbit runs here ...");
+            String param1 = context.getJobDetail().getJobDataMap().getString("param1");
+            int param2 = context.getJobDetail().getJobDataMap().getInt("param2");
+            System.out.println("Rabbit runs here with param1: " + param1 + " and param2: " + param2);
         }
     }
 
