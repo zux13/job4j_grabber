@@ -17,12 +17,12 @@ public class Post {
         if (!(o instanceof Post post)) {
             return false;
         }
-        return Objects.equals(title, post.title) && Objects.equals(link, post.link) && Objects.equals(description, post.description);
+        return Objects.equals(link, post.link);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, link, description);
+        return Objects.hashCode(link);
     }
 
     @Override
