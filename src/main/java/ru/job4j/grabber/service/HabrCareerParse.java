@@ -3,8 +3,12 @@ package ru.job4j.grabber.service;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import ru.job4j.grabber.model.Post;
+import ru.job4j.grabber.utils.DateTimeParser;
+import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
+
 import java.io.IOException;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +22,7 @@ public class HabrCareerParse implements Parse {
     public List<Post> fetch() {
         var result = new ArrayList<Post>();
         try {
+            DateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
             int pageNumber = 1;
             String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, pageNumber, SUFFIX);
             var connection = Jsoup.connect(fullLink);
@@ -31,12 +36,11 @@ public class HabrCareerParse implements Parse {
                 String link = String.format("%s%s", SOURCE_LINK,
                         linkElement.attr("href"));
                 String dateTime = dateElement.child(0).attr("datetime");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(dateTime);
-                long milliseconds = offsetDateTime.toInstant().toEpochMilli();
+                LocalDateTime localDateTime = dateTimeParser.parse(dateTime);
                 var post = new Post();
                 post.setTitle(vacancyName);
                 post.setLink(link);
-                post.setTime(milliseconds);
+                post.setTime(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
                 result.add(post);
             });
         } catch (IOException e) {
