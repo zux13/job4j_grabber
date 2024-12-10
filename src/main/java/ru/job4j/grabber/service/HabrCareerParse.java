@@ -36,17 +36,32 @@ public class HabrCareerParse implements Parse {
                     String vacancyName = titleElement.text();
                     String link = String.format("%s%s", SOURCE_LINK,
                             linkElement.attr("href"));
+                    String description = retrieveDescription(link);
                     String dateTime = dateElement.child(0).attr("datetime");
                     LocalDateTime localDateTime = dateTimeParser.parse(dateTime);
                     var post = new Post();
                     post.setTitle(vacancyName);
                     post.setLink(link);
+                    post.setDescription(description);
                     post.setTime(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
                     result.add(post);
                 });
             }
         } catch (IOException e) {
             LOGGER.error("When load page", e);
+        }
+        return result;
+    }
+
+    private String retrieveDescription(String link) {
+        String result = "";
+        try {
+            var connection = Jsoup.connect(link);
+            var document = connection.get();
+            var descriptionElement = document.body().select(".vacancy-description__text").first();
+            result = descriptionElement.text();
+        } catch (IOException e) {
+            LOGGER.error("When retrieving description", e);
         }
         return result;
     }
