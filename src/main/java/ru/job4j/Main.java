@@ -24,12 +24,10 @@ public class Main {
                 config.get("db.password"))) {
             Store store = new JdbcStore(connection);
 
-            // Добавляем тестовый пост
             var post = new Post();
             post.setTitle("Super Java Job");
             store.save(post);
 
-            // Настраиваем и запускаем планировщик
             var scheduler = new SchedulerManager();
             scheduler.init();
             scheduler.load(
@@ -38,7 +36,6 @@ public class Main {
                     store
             );
 
-            // Запускаем веб-сервер
             new Web(store).start(Integer.parseInt(config.get("server.port")));
         } catch (SQLException e) {
             LOGGER.error("When creating a connection", e);
