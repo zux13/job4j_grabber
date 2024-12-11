@@ -18,12 +18,16 @@ public class HabrCareerParse implements Parse {
     private static final String PREFIX = "/vacancies?page=";
     private static final String SUFFIX = "&q=Java%20developer&type=all";
     private static final int PAGES = 5;
+    private final DateTimeParser dateTimeParser;
+
+    public HabrCareerParse(DateTimeParser dateTimeParser) {
+        this.dateTimeParser = dateTimeParser;
+    }
 
     @Override
     public List<Post> fetch() {
         var result = new ArrayList<Post>();
         try {
-            DateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
             for (int currentPage = 1; currentPage <= PAGES; currentPage++) {
                 String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, currentPage, SUFFIX);
                 var connection = Jsoup.connect(fullLink);
